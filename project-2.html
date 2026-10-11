@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  =============================================================
+  PROJECT PAGE  (project.html)
+  =============================================================
+  This is ONE project's page. It has space for:
+    - a title
+    - images
+    - a description
+  ...which is exactly what the brief asks for.
+
+  WANT MORE THAN ONE PROJECT?
+    The easiest way: just tell Claude "add another project" — it will make
+    a new copy of this page AND a matching card on the home page, linked
+    together for you.
+
+    (By hand: duplicate this file, change the content in the copy, and
+    point a card in index.html at your new file.)
+  =============================================================
+-->
+<html lang="en-NZ">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- REPLACE: the project name -->
+  <title>REPLACE: Project Title — Eunis</title>
+  <!-- The little icon in the browser tab. Replace assets/favicon.svg with your own. -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+  <!-- Hand-drawn heading font, to match the sketch style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- This invisible SVG filter gives borders a wobbly, hand-drawn
+       line (see the .sketchy class in styles.css). -->
+  <svg width="0" height="0" style="position: absolute; overflow: hidden;" aria-hidden="true">
+    <filter id="sketchy">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- Skip link: lets keyboard users jump straight to the main content. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Same nav as the home page. The logo links home. -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav__logo">Eunis</a>
+      <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav__links">
+        <a href="index.html#work">Work</a>
+        <a href="index.html#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section container project">
+
+      <!-- A link back to the list of projects -->
+      <a class="project__back" href="index.html#work">← Back to work</a>
+
+      <!-- REPLACE: the project title -->
+      <h1 class="project__title">REPLACE: Project Title</h1>
+
+      <!-- REPLACE: short facts about the project -->
+      <p class="project__meta">REPLACE: e.g. Poster series · 2026 · Personal project</p>
+
+      <!-- ===== PROJECT DESCRIPTION ===== -->
+      <div class="project__description">
+        <!-- REPLACE: describe your project. What is it? Why did you make
+             it? How did you make it? What are you proud of? -->
+        <p>
+          REPLACE THIS. Describe your project here. Tell the story of what
+          you made and how you made it. A few short paragraphs works well.
+        </p>
+        <p>
+          You can write as much or as little as you like. Delete this
+          paragraph if you don't need it.
+        </p>
+      </div>
+
+      <!-- ===== PROJECT IMAGES ===== -->
+      <!--
+        Add as many images as you like by copying an <img> line.
+        Replace the placeholder files in the assets folder with your own.
+      -->
+      <div class="project__gallery">
+        <img src="assets/project-placeholder-1.svg" alt="REPLACE: describe this image" />
+        <img src="assets/project-placeholder-2.svg" alt="REPLACE: describe this image" />
+        <img src="assets/project-placeholder-3.svg" alt="REPLACE: describe this image" />
+      </div>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Eunis</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

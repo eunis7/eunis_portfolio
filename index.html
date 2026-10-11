@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!--
+  =============================================================
+  HOME PAGE  (index.html)
+  =============================================================
+  STEP 1 of the sketchbook redesign.
+
+  This page is now a one-screen "app" instead of a long scrolling
+  page: a shelf with two closed sketchbooks (Works / About Me).
+  Clicking one swaps in a placeholder "open book" screen — no real
+  project or about-me content yet, just the landing screen, book
+  sizes and desktop layout. See script.js for how the screens swap,
+  and PROJECT.md for what's next.
+  =============================================================
+-->
+<html lang="en-NZ">
+<head>
+  <meta charset="UTF-8" />
+  <!-- This meta tag is what makes the site work on phones. Leave it in. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Eunis — Portfolio</title>
+
+  <meta name="description" content="Portfolio of Eunis, a design student at Te Herenga Waka." />
+
+  <!-- The little icon in the browser tab. Replace assets/favicon.svg with your own. -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+  <!-- Hand-drawn heading font, to match the sketch style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet" />
+
+  <!-- Restores the background colour chosen with the colour switcher (see
+       section 7 of script.js) BEFORE the page paints, so a reload doesn't
+       flash the default cream first. It only copies the saved name onto
+       <html data-bg="...">; the colours themselves live in styles.css, and
+       an unknown/old value simply matches nothing (= the default cream). -->
+  <script>
+    try {
+      var savedBg = localStorage.getItem("pageBackground");
+      if (savedBg && /^[a-z]+$/.test(savedBg)) document.documentElement.dataset.bg = savedBg;
+    } catch (e) {}
+  </script>
+  <!-- Same idea for the background theme (Ocean / Plain, section 9 of
+       script.js): if Plain was chosen last time, hide the doodles from the
+       very first paint. Ocean is the default, so nothing is saved for it. -->
+  <script>
+    try {
+      if (localStorage.getItem("pageTheme") === "plain") document.documentElement.dataset.theme = "plain";
+    } catch (e) {}
+  </script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- This invisible SVG filter gives borders a wobbly, hand-drawn
+       line (see the .sketchy class in styles.css). Not used on this
+       screen yet, but kept here in case a future step wants it. -->
+  <svg width="0" height="0" style="position: absolute; overflow: hidden;" aria-hidden="true">
+    <filter id="sketchy">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- Skip link: lets keyboard users jump straight to the main content
+       instead of tabbing through the menu. It's hidden until focused. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app">
+
+    <!-- ===================== NAVIGATION BAR ===================== -->
+    <header class="site-header">
+      <div class="container nav">
+        <a href="index.html" class="nav__logo">Eunis</a>
+
+        <!-- The button below only shows on small screens (phones). -->
+        <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav__links">
+          <!-- "Work" is now a small dropdown. Its two choices reuse the
+               normal book-opening code: data-open="works" is the Animation
+               book and data-open="works2" is the Doodles book. Behaviour
+               is in script.js, section 8. -->
+          <div class="nav__dropdown" id="work-dropdown">
+            <button type="button" class="nav__link nav__dropdown-toggle" id="work-toggle"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="work-menu">
+              Work
+              <svg class="nav__arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor"
+                   stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M1.5 3.2 5 6.8l3.5-3.6" />
+              </svg>
+            </button>
+            <div class="nav__menu">
+              <div class="nav__menu-list" id="work-menu" role="menu" aria-labelledby="work-toggle">
+                <button type="button" class="nav__menu-item" role="menuitem" data-open="works">Animation</button>
+                <button type="button" class="nav__menu-item" role="menuitem" data-open="works2">Doodles</button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="nav__link" data-open="about">About</button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="app__screens">
+
+      <!-- ===================== LANDING: CHOOSE A SKETCHBOOK ===================== -->
+      <section id="screen-landing" class="screen screen--landing">
+        <p class="landing__instruction">Choose a sketchbook</p>
+
+        <!-- The sketchbook carousel: ONE horizontal row of closed books that
+             slides left/right (it never loops round). The books themselves
+             are NOT written here — script.js builds them from the
+             SKETCHBOOKS array (section 6), so adding an object to that array
+             adds a book. Layout and animation: "Landing screen: the
+             sketchbook carousel" in styles.css. -->
+        <div class="carousel" id="shelf-carousel" role="group" aria-roledescription="carousel" aria-label="Sketchbooks">
+          <button type="button" class="carousel__arrow carousel__arrow--prev" aria-label="Show the previous sketchbook">‹</button>
+
+          <div class="carousel-viewport">
+            <div class="sketchbook-track" id="sketchbook-track"></div>
+          </div>
+
+          <button type="button" class="carousel__arrow carousel__arrow--next" aria-label="Show the next sketchbook">›</button>
+
+          <p class="carousel__label" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- ===================== WORKS BOOK ===================== -->
+      <!-- The book PNG never moves or resizes (see .book__frame /
+           .book__img in styles.css — untouched by this step). An
+           overlay div (.book__overlay) is sized in script.js to sit
+           exactly on top of the rendered image, so the two "pages" of
+           content below always line up with the real book pages no
+           matter the screen size. See WORKS_PROJECTS in script.js for
+           the project data driving all of this. The dusty rose book
+           below is an identical copy of this markup (own screen id,
+           own image, own data: WORKS2_PROJECTS). -->
+      <section id="screen-works" class="screen screen--book" hidden>
+        <button type="button" class="book__back" data-close>← Back to shelf</button>
+        <div class="book__frame">
+          <img
+            class="book__img"
+           
+            src="assets/opened blue sketchbook for work.png"
+            alt="An open blue sketchbook"
+          />
+
+          <div class="book__overlay">
+
+            <!-- LEFT PAGE: project info -->
+            <div class="book__page book__page--left">
+              <!-- CONTENTS (the first page of the book). script.js fills the
+                   list from WORKS_PROJECTS, so a new project appears here
+                   by itself. Only visible on the contents page. -->
+              <div class="work-contents" hidden>
+                <h3 class="work-contents__heading">Contents</h3>
+                <ol class="work-contents__list"></ol>
+              </div>
+
+              <p class="work__number"></p>
+              <h3 class="work__title"></h3>
+              <p class="work__meta"></p>
+              <p class="work__description"></p>
+              <button type="button" class="work__nav work__nav--prev" aria-label="Previous project">‹ Previous</button>
+            </div>
+
+            <!-- RIGHT PAGE: the selected project's media -->
+            <div class="book__page book__page--right">
+              <p class="work__label work__label--right">Animation</p>
+              <div class="work__media">
+                <!-- An <img> or <video> is generated here by script.js
+                     depending on the selected project's media.type. -->
+              </div>
+              <p class="work__caption" hidden></p>
+              <button type="button" class="work__nav work__nav--next" aria-label="Next project">Next ›</button>
+            </div>
+
+            <!-- A blank "paper" layer, reused for both directions, that
+                 script.js briefly repositions/animates over whichever
+                 page is turning (see .book__turn-flap in styles.css).
+                 Empty and hidden except during that animation. -->
+            <div class="book__turn-flap" aria-hidden="true"></div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== DOODLES BOOK (dusty rose) ===================== -->
+      <!-- Only pictures: cat doodles, no text. Each <img> has its own
+           top / left / width (all % of its PAGE box) and --rot (degrees),
+           set in its style attribute — change those numbers to move or
+           resize a doodle. The pages are positioned boxes sitting exactly
+           on the book's real left/right pages (same safe areas as the Works
+           book), so doodles can't touch the binding or the paper's edge.
+           There are two spreads (page-turn between them with the arrows);
+           each has doodles on BOTH pages. To add a doodle, copy an <img>
+           into a page; to add a spread, copy a .doodle-spread block (the
+           arrows in script.js pick it up automatically). -->
+      <section id="screen-works2" class="screen screen--book" hidden>
+        <button type="button" class="book__back" data-close>← Back to shelf</button>
+        <div class="book__frame">
+          <img
+            class="book__img"
+            src="assets/opened dusty rose sketchbook for work.png"
+            alt="An open dusty rose sketchbook"
+          />
+
+          <div class="book__overlay">
+
+        <div class="doodle-spread">
+          <div class="doodle-page doodle-page--left">
+            <img class="doodle" src="assets/doodles/doodle-14.png" alt="An orange and white cat sitting with a seedling on its head"
+              style="top: 41%; left: 8%; width: 54%; --rot: -3deg;" />
+            <img class="doodle" src="assets/doodles/doodle-4.png" alt="A pencil sketch of a cat with a flower"
+              style="top: 4%; left: 6%; width: 46%; --rot: -6deg;" />
+            <img class="doodle" src="assets/doodles/doodle-7.png" alt="A pencil sketch of a cat"
+              style="top: 14%; left: 62%; width: 30%; --rot: 5deg;" />
+            <img class="doodle" src="assets/doodles/doodle-2.png" alt="A cat's head with orange patches"
+              style="top: 50%; left: 63%; width: 32%; --rot: -7deg;" />
+          </div>
+
+          <div class="doodle-page doodle-page--right">
+            <img class="doodle" src="assets/doodles/doodle-5.png" alt="An orange and white cat asleep"
+              style="top: 3%; left: 34%; width: 60%; --rot: 4deg;" />
+            <img class="doodle" src="assets/doodles/doodle-8.png" alt="An orange and white cat crouching"
+              style="top: 40%; left: 9%; width: 34%; --rot: -5deg;" />
+            <img class="doodle" src="assets/doodles/doodle-1.png" alt="A pencil sketch of a cat"
+              style="top: 52%; left: 54%; width: 38%; --rot: 6deg;" />
+            <img class="doodle" src="assets/doodles/doodle-13.png" alt="A pencil sketch of a cat"
+              style="top: 66%; left: 22%; width: 32%; --rot: -4deg;" />
+          </div>
+        </div>
+
+        <div class="doodle-spread" hidden>
+          <div class="doodle-page doodle-page--left">
+            <img class="doodle" src="assets/doodles/doodle-12.png" alt="An orange and white cat stretching up"
+              style="top: 22%; left: 6%; width: 31%; --rot: -4deg;" />
+            <img class="doodle" src="assets/doodles/doodle-3.png" alt="A pencil sketch of a cat sitting"
+              style="top: 6%; left: 44%; width: 42%; --rot: 6deg;" />
+            <img class="doodle" src="assets/doodles/doodle-6.png" alt="A pencil sketch of two cats"
+              style="top: 52%; left: 40%; width: 46%; --rot: -5deg;" />
+          </div>
+
+          <div class="doodle-page doodle-page--right">
+            <img class="doodle" src="assets/doodles/doodle-10.png" alt="An orange and white cat looking up"
+              style="top: 8%; left: 6%; width: 46%; --rot: 5deg;" />
+            <img class="doodle" src="assets/doodles/doodle-11.png" alt="A pencil sketch of a cat"
+              style="top: 10%; left: 56%; width: 38%; --rot: 7deg;" />
+            <img class="doodle" src="assets/doodles/doodle-9.png" alt="A pencil sketch of a cat on a pole"
+              style="top: 52%; left: 30%; width: 58%; --rot: -4deg;" />
+          </div>
+        </div>
+
+          <!-- Page-turn buttons: the very same ones the Animation book uses
+               (.work__nav supplies the look; .doodle__nav only places them
+               at the bottom corners of the pages). -->
+          <button type="button" class="work__nav work__nav--prev doodle__nav doodle__nav--prev" aria-label="Previous page">‹ Previous</button>
+          <button type="button" class="work__nav work__nav--next doodle__nav doodle__nav--next" aria-label="Next page">Next ›</button>
+
+          <!-- The blank paper layer the page-turn animation uses (see
+               .book__turn-flap in styles.css). -->
+          <div class="book__turn-flap" aria-hidden="true"></div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ABOUT ME BOOK ===================== -->
+      <!-- First page of the About Me book: a photo on the left page, the
+           words on the right. script.js (initAboutBook) keeps .book__overlay
+           exactly on top of the book picture, so every % in styles.css
+           ("ABOUT ME BOOK") is a % of the real paper. -->
+      <section id="screen-about" class="screen screen--book" hidden>
+        <button type="button" class="book__back" data-close>← Back to shelf</button>
+        <span class="book__frame">
+          <img
+            class="book__img"
+            src="assets/opened sage-green sketchbook for about me.png"
+            alt="An open sage-green sketchbook"
+          />
+
+          <div class="book__overlay">
+            <!-- LEFT PAGE: the photo, on a printed-photo-style card. The
+                 card is sized to the photo's own shape (3:2, landscape), so
+                 nothing is cropped. To use a different photo, change src
+                 and alt — and if it has a different shape, update
+                 aspect-ratio on .about-photo__image in styles.css. -->
+            <div class="about-page about-page--left">
+              <!-- .about-photo-hover is the fixed spot on the page (it stays still,
+                   so the hover can't flicker at the edges); the figure inside it
+                   is what gently lifts. .about-photo__frame clips the picture. -->
+              <div class="about-photo-hover">
+                <figure class="about-photo">
+                  <div class="about-photo__frame">
+                    <img class="about-photo__image" src="assets/about-photo.jpg" width="1400" height="933"
+                         alt="Eunis smiling at the camera beside a leafy tree and a white railing, with a harbour and hills behind" />
+                  </div>
+                </figure>
+              </div>
+
+              <!-- Five decorative stickers around the photo, in the empty paper
+                   above and below it. Each sits at a fixed spot, size and tilt
+                   (--x / --y = position, --w = width, all as % of this page;
+                   --rot = tilt), so the arrangement is always the same and
+                   scales with the book. They're pictures only: no click, and
+                   hidden from screen readers. -->
+              <span class="about-sticker" aria-hidden="true" style="--x: 4%; --y: 2%; --w: 18.8%; --rot: -9deg">
+                <img src="assets/stickers/sticker-2.png" alt="" width="536" height="606" />
+              </span>
+              <span class="about-sticker" aria-hidden="true" style="--x: 56%; --y: 5%; --w: 20.7%; --rot: 8deg">
+                <img src="assets/stickers/sticker-3.png" alt="" width="640" height="550" />
+              </span>
+              <span class="about-sticker" aria-hidden="true" style="--x: 6%; --y: 84.4%; --w: 21.6%; --rot: 11deg">
+                <img src="assets/stickers/sticker-1.png" alt="" width="640" height="552" />
+              </span>
+              <span class="about-sticker" aria-hidden="true" style="--x: 35%; --y: 84%; --w: 26.4%; --rot: -6deg">
+                <img src="assets/stickers/sticker-4.png" alt="" width="640" height="457" />
+              </span>
+              <span class="about-sticker" aria-hidden="true" style="--x: 78%; --y: 85.2%; --w: 15.6%; --rot: 12deg">
+                <img src="assets/stickers/sticker-5.png" alt="" width="620" height="640" />
+              </span>
+            </div>
+
+            <!-- RIGHT PAGE: heading + three short paragraphs. Edit the words
+                 here; the text size follows the size of the book (see
+                 .about-text in styles.css) so it always fits the page. -->
+            <div class="about-page about-page--right">
+              <h2 class="about-heading">About Me</h2>
+              <p class="about-text">Hi!! I’m Eunis. I study Animation and Visual Effects at VUW, and this is where I share my work.</p>
+              <p class="about-text">I sometimes create short and simple animations. I also enjoy doodling, watercolour painting and photography.</p>
+              <p class="about-text">Please feel free to doodle around my portfolio website! （Although your doodles are only temporary ₍^˶⦁༝⦁˶^₎ ）</p>
+            </div>
+          </div>
+        </span>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Background colour switcher: fixed to the bottom-left corner. The six
+       colour dots are built from the BACKGROUNDS list in script.js
+       (section 7); their colours are in styles.css. -->
+  <div class="bg-switcher" id="bg-switcher">
+    <div class="bg-switcher__swatches" id="bg-swatches" role="group" aria-label="Background colours"></div>
+    <button type="button" class="bg-switcher__toggle" id="bg-toggle" aria-label="Change background colour" aria-expanded="false" aria-controls="bg-swatches">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.2 17 3 12 3z" />
+        <circle cx="7.5" cy="11" r="1" fill="currentColor" stroke="none" />
+        <circle cx="10" cy="7" r="1" fill="currentColor" stroke="none" />
+        <circle cx="14.5" cy="7" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- The default doodles (page background + sketchbook covers); see the notes inside. -->
+  <script src="default-drawings.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2350 @@
+/* =============================================================
+   STYLES.CSS  —  the look of your whole website
+   =============================================================
+
+   START HERE ↓
+   The block below is your "design tokens": the colours, fonts and
+   spacing used everywhere. Change a value here and it updates across
+   the ENTIRE site. This is the easiest and best place to make the
+   site feel like YOURS.
+
+   TIP: Ask Claude things like
+     "Change the accent colour to a warm orange."
+     "Use a serif font for headings."
+     "Make everything feel more spacious."
+   ============================================================= */
+
+:root {
+  /* ---- COLOURS ---- */
+  /* A warm paper palette to match the hand-drawn sketch look. */
+  --color-bg:      #efe7d8;   /* page background (paper) */
+  --color-surface: #f7f2e6;   /* cards, panels */
+  --color-text:    #241f1a;   /* main text (ink) */
+  --color-muted:   #54493b;   /* secondary text (kept dark enough to stay readable on the paper background) */
+  --color-border:  #241f1a;   /* the "ink" used for hand-drawn borders */
+  --color-accent:  #d9480f;   /* links & buttons — a warm marker orange */
+  --color-accent-text: #ffffff; /* text on top of the accent colour */
+
+  /* ---- FONTS ---- */
+  /* Headings use a hand-lettered Google Font (linked in the <head> of
+     each page) so titles look sketched. Body text stays in a plain
+     system font on purpose — a whole page of handwriting is hard to
+     read, so we keep that for headings and short labels only. */
+  --font-body:    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: "Architects Daughter", var(--font-body);
+
+  /* ---- SPACING & SIZES ---- */
+  --space:        1rem;       /* the base spacing unit */
+  --radius:       14px;       /* how round corners are */
+  --max-width:    1080px;     /* how wide content gets on big screens */
+
+  /* ---- BACKGROUND COLOUR SWITCHER ----
+     --page-bg is the colour of the page background (and the header bar
+     that sits on it). It defaults to the original --color-bg; picking a
+     colour from the switcher (bottom-left corner) sets data-bg on <html>,
+     and the matching html[data-bg="..."] rule below swaps --page-bg.
+     These six are the exact hex values — don't edit them to "tweak". */
+  --page-bg:       var(--color-bg);
+  --bg-cream:      var(--color-bg);   /* 1. original warm cream (the current default) */
+  --bg-golden:     #E8B86C;           /* 2. warm golden beige */
+  --bg-blush:      #FDD6CF;           /* 3. soft blush pink */
+  --bg-coral:      #FDADA4;           /* 4. coral pink */
+  --bg-bluegrey:   #C3D1D1;           /* 5. pale blue-grey */
+  --bg-teal:       #619394;           /* 6. muted teal */
+}
+
+html[data-bg="golden"]   { --page-bg: var(--bg-golden); }
+html[data-bg="blush"]    { --page-bg: var(--bg-blush); }
+html[data-bg="coral"]    { --page-bg: var(--bg-coral); }
+html[data-bg="bluegrey"] { --page-bg: var(--bg-bluegrey); }
+html[data-bg="teal"]     { --page-bg: var(--bg-teal); }
+
+/* -------------------------------------------------------------
+   BASIC RESET — sensible defaults. You can usually leave this.
+   ------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth; /* smooth scrolling to #about, #work, etc. */
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--page-bg);
+  transition: background-color 420ms ease; /* the switcher fades the colour */
+  /* A faint grain, so the background reads as paper rather than a flat
+     colour. Purely decorative — it's a tiled, noisy SVG at low opacity. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------
+   SKETCHY (hand-drawn) BORDERS
+   -------------------------------------------------------------
+   Add class="sketchy" to any box to give it a wobbly, hand-inked
+   border instead of a straight one. It works by drawing the border
+   on an invisible ::before layer and running ONLY that layer through
+   the #sketchy SVG filter (defined once near the top of each page's
+   <body>) — so the wobble distorts just the line, not the photo or
+   text sitting inside the box. */
+.sketchy {
+  position: relative;
+}
+
+.sketchy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid var(--color-border);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+
+img {
+  display: block;
+  max-width: 100%; /* stops images overflowing on small screens */
+  height: auto;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* -------------------------------------------------------------
+   ACCESSIBILITY  (small things that make the site usable for
+   everyone — including people using a keyboard or a screen reader)
+   ------------------------------------------------------------- */
+
+/* A clear outline shows keyboard users where they are on the page.
+   :focus-visible only shows it for keyboard focus, not mouse clicks. */
+a:focus-visible,
+button:focus-visible,
+.card:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* The "Back to shelf" button is focused automatically when a book opens;
+   until a key is pressed, that automatic focus shows no outline box. */
+.book__back.is-quiet-focus:focus-visible {
+  outline: none;
+}
+
+/* The "Skip to content" link. It's tucked off-screen until a keyboard
+   user tabs to it, then it appears at the top-left. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem; /* off-screen */
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  z-index: 100;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0.5rem; /* slides into view when focused */
+}
+
+/* The .container keeps content centred and stops it getting too wide. */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space);
+}
+
+/* -------------------------------------------------------------
+   HEADER / NAVIGATION
+   ------------------------------------------------------------- */
+.site-header {
+  position: sticky;   /* the nav stays at the top as you scroll */
+  top: 0;
+  background: var(--page-bg); /* follows the page background (see the switcher) */
+  transition: background-color 420ms ease;
+  border-bottom: 1px solid var(--color-border);
+  z-index: 10;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.75rem;
+}
+
+/* The header's inner row is nearly full width: the name hugs the left
+   edge and the links hug the right, with the same side padding on both
+   (it shrinks on small screens, never below 24px). This overrides the
+   shared .container's narrow max-width for the header only. */
+.site-header .nav {
+  --header-pad: clamp(24px, 4vw, 64px);
+  width: 100%;
+  max-width: none;
+  padding-inline: var(--header-pad);
+}
+
+.nav__logo {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav__links a,
+.nav__links button {
+  text-decoration: none;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  /* The same hand-drawn font as the name, headings and book titles (the
+     existing --font-heading variable; nothing new is loaded). Size and
+     everything else stay as they were. */
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+
+.nav__links a:hover,
+.nav__links button:hover {
+  color: var(--color-accent);
+}
+
+/* ---- The "Work" dropdown ----
+   A small paper-coloured menu directly under "Work", with a thin uneven
+   outline, rounded corners and a soft shadow. It fades and slides down
+   over 180ms. .nav__menu is an invisible wrapper whose top padding
+   bridges the gap between "Work" and the visible box, so the pointer can
+   travel from one to the other without the menu vanishing. script.js
+   (section 8) adds .is-open. */
+.nav__dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav__links .nav__dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.nav__arrow {
+  flex: none;
+  transition: transform 220ms ease;
+}
+
+.nav__dropdown.is-open .nav__arrow {
+  transform: rotate(180deg); /* points up while the menu is open */
+}
+
+.nav__menu {
+  position: absolute;
+  top: 100%;
+  left: -0.9rem;
+  z-index: 20;
+  min-width: 8.5rem;
+  padding-top: 0.7rem; /* the invisible bridge */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.nav__dropdown.is-open .nav__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 0s;
+}
+
+.nav__menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem; /* breathing room between the two choices */
+  padding: 0.5rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-text);
+  border-radius: 10px 12px 9px 13px / 12px 9px 13px 10px;
+  box-shadow:
+    1.5px 2px 0 rgba(36, 31, 26, 0.22),
+    0 10px 22px rgba(70, 50, 30, 0.18);
+}
+
+.nav__links .nav__menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+  border-radius: 7px;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.nav__links .nav__menu-item:hover,
+.nav__links .nav__menu-item:focus-visible {
+  background: rgba(217, 72, 15, 0.1);
+  color: var(--color-accent);
+}
+
+/* The hamburger button is hidden on big screens... */
+.nav__toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.nav__toggle span {
+  width: 24px;
+  height: 2px;
+  background: var(--color-text);
+}
+
+/* -------------------------------------------------------------
+   HERO (the big intro at the top of the home page)
+   ------------------------------------------------------------- */
+.hero {
+  padding-block: 4rem 3rem;
+}
+
+.hero__eyebrow {
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 6vw, 4rem); /* grows with screen size */
+  line-height: 1.1;
+}
+
+.hero__subtitle {
+  color: var(--color-muted);
+  font-size: 1.2rem;
+  max-width: 40ch;
+  margin-block: 1rem 1.5rem;
+}
+
+.hero__showcase {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.hero__showcase img,
+.hero__showcase video {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* matches the video's own shape, so nothing gets cropped */
+  object-fit: cover;
+  display: block;
+}
+
+/* Small pause/play button sitting in the corner of the video itself,
+   instead of the browser's built-in controls bar (which covered part
+   of the footage) or a separate button (which added a gap below). */
+.hero__video-toggle {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__video-toggle:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* -------------------------------------------------------------
+   BUTTONS
+   ------------------------------------------------------------- */
+.button {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  text-decoration: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+/* -------------------------------------------------------------
+   SECTIONS (About, Work, ...)
+   ------------------------------------------------------------- */
+.section {
+  padding-block: 3rem;
+}
+
+.section__title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.section__subtitle {
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.section__intro {
+  color: var(--color-muted);
+  max-width: 55ch;
+  margin-bottom: 2rem;
+}
+
+/* -------------------------------------------------------------
+   ABOUT
+   ------------------------------------------------------------- */
+.about {
+  display: grid;
+  grid-template-columns: 220px 1fr; /* photo | text */
+  gap: 2rem;
+  align-items: start;
+}
+
+.about__photo-frame {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.about__photo {
+  width: 100%;
+  display: block;
+}
+
+.about__text p + p {
+  margin-top: 1rem;
+}
+
+/* -------------------------------------------------------------
+   WORK GRID + PROJECT CARDS
+   ------------------------------------------------------------- */
+.grid {
+  display: grid;
+  /* auto-fit means the number of columns adapts to the screen width.
+     Cards are at least 260px wide, and fill the row. */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.card__image {
+  width: 100%;
+  aspect-ratio: 4 / 3; /* keeps all cards the same shape */
+  object-fit: cover;
+}
+
+.card__body {
+  padding: 1rem;
+}
+
+.card__title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.card__meta {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* -------------------------------------------------------------
+   PROJECT PAGE
+   ------------------------------------------------------------- */
+.project__back {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+.project__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+}
+
+.project__meta {
+  color: var(--color-muted);
+  margin-block: 0.5rem 2rem;
+}
+
+.project__description {
+  max-width: 65ch;
+  font-size: 1.1rem;
+}
+
+.project__description p + p {
+  margin-top: 1rem;
+}
+
+.project__gallery {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.project__gallery img,
+.project__gallery video {
+  width: 100%;
+  border: 2.5px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+/* -------------------------------------------------------------
+   FOOTER
+   ------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding-block: 2rem;
+  margin-top: 3rem;
+  color: var(--color-muted);
+}
+
+/* -------------------------------------------------------------
+   SKETCHBOOK APP (index.html only)
+   -------------------------------------------------------------
+   index.html is a one-screen "app" that fills the browser window
+   instead of scrolling: a shelf with two closed sketchbooks, and a
+   placeholder "open book" screen behind each one. Only one .screen
+   is visible at a time (script.js toggles the `hidden` attribute).
+   This is scoped to .app so project.html and the other project
+   pages keep scrolling normally.
+   ------------------------------------------------------------- */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app__screens {
+  flex: 1;
+  min-height: 0; /* lets the screen below size within the remaining space */
+}
+
+.screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Setting display:flex above means the browser's default
+   [hidden] { display: none } rule no longer wins (author styles
+   always beat the browser's own stylesheet) — so it has to be
+   restated here, or every screen would stack on top of each other. */
+.screen[hidden] {
+  display: none;
+}
+
+/* The background drawing canvas (script.js, section 9) lives inside
+   <main>, behind every screen: <main> becomes its own stacking context so
+   the canvas can sit at z-index -1 — above the page's background colour,
+   below the books, titles, arrows and open books. It ignores the pointer
+   unless background drawing is switched on. */
+.app__screens {
+  position: relative;
+  isolation: isolate;
+}
+
+/* The floating background doodles: one small canvas each, moved with
+   transforms only, inside a clipped layer that sits under the books like
+   the drawing canvas below. */
+.bg-doodles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.bg-doodle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  touch-action: none;
+}
+
+html.is-bg-drawing .bg-canvas {
+  pointer-events: auto;
+}
+
+/* While drawing on the background: crosshair everywhere on the shelf, no
+   text selection, no touch scrolling. */
+html.is-bg-drawing #screen-landing,
+html.is-bg-drawing #screen-landing .sketchbook-visual,
+html.is-bg-drawing #screen-landing .sketchbook-title,
+html.is-bg-drawing #screen-landing .carousel__arrow {
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* Background themes. Plain hides every background doodle (the floating ones
+   and anything a visitor drew) with a short fade; nothing is removed, so
+   Ocean (the default) brings them all back exactly as they were. Only the
+   doodle layers are touched: the background colour, books and everything
+   else stay as they are. */
+.bg-doodles,
+.bg-canvas {
+  opacity: 1;
+  transition: opacity 320ms ease, visibility 0s linear 0s;
+}
+
+html[data-theme="plain"] .bg-doodles,
+html[data-theme="plain"] .bg-canvas {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 320ms ease, visibility 0s linear 320ms;
+}
+
+/* The Theme control, just right of the pencil button: one round button that
+   fans the two choices (Ocean / Plain) out above it, opening and closing the
+   same way as the background-colour dots (script.js adds .is-open). */
+.bg-theme {
+  --tool-size: 36px;
+  position: fixed;
+  left: 124px; /* after the 40px colour button at 24px and the pencil at 76px */
+  bottom: 26px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  /* This box is tall (it has room for the choices above the button), so
+     it must not catch clicks itself — otherwise it sat over the dark-green
+     and yellow drawing colours and blocked them. Only the buttons take clicks. */
+  pointer-events: none;
+}
+
+.bg-theme__toggle,
+.bg-theme__button {
+  pointer-events: auto;
+}
+
+.bg-theme__options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* closed: invisible, not focusable, tucked slightly down toward the button */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    visibility 0s linear 260ms;
+}
+
+.bg-theme.is-open .bg-theme__options {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    visibility 0s;
+}
+
+/* The pencil button and drawing toolbar, in the bottom-left corner next to
+   the background-colour button. They reuse the sketchbook controls' look
+   (.book-tool, .book-colour...). The toolbar grows upwards from the
+   pencil, to the left of the books. */
+.bg-draw {
+  --tool-size: 36px;
+  position: fixed;
+  left: 76px; /* just right of the 40px colour button at 24px */
+  bottom: 26px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.bg-draw[hidden],
+.bg-draw__bar[hidden] {
+  display: none;
+}
+
+.bg-draw__bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: book-swatches-in 200ms ease both;
+}
+
+/* The shelf screen: a sideways trackpad swipe anywhere on it (see
+   "Trackpad swipe" in script.js) must not also trigger the browser's
+   back / forward gesture. */
+#screen-landing {
+  overscroll-behavior-x: contain;
+}
+
+/* ---- Landing screen: the sketchbook carousel ---- */
+.landing__instruction {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--color-muted);
+}
+
+/* -------------------------------------------------------------
+   CAROUSEL TUNING KNOBS — change these to adjust the carousel.
+   The books sit in ONE straight horizontal row (the "track"). Moving
+   to another book slides the whole track sideways so that book is
+   centred in the viewport; nothing orbits or loops. Every book is the
+   same size (an equal 2:3 box matching the PNGs), so differences
+   between the PNG files can't affect the layout. Depth comes from
+   scale, shadow, a small vertical offset, tilt and a hint of
+   brightness — never from transparency: every book is fully opaque.
+   ------------------------------------------------------------- */
+.carousel {
+  --book-width: min(24vw, 290px, 30vh);       /* width of every book's box */
+  --track-gap: clamp(90px, 9vw, 160px);        /* space between the books (bigger = more separated) */
+  --selected-scale: 1.12;                      /* how much larger the selected book is */
+  --selected-lift: -8px;                       /* how far the selected book rises (negative = up) */
+  --selected-duration: 450ms;                  /* how long the selected book takes to grow/lift */
+  --hover-scale: 1.05;                         /* EXTRA scale when hovering any book (on top of its own) */
+  --hover-lift: -10px;                         /* EXTRA lift when hovering any book (negative = up) */
+  --hover-duration: 280ms;                     /* how quickly the hover effect plays */
+  --carousel-duration: 650ms;                  /* how long the slide takes (script.js reads this too) */
+  --carousel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  width: min(96vw, 1240px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "prev viewport next"
+    ".    label    .";
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 0.75rem;
+}
+
+/* The window the track slides behind. overflow: hidden crops books
+   that are outside it; the padding gives the lifted/scaled book and
+   its shadow room so they aren't cropped too. */
+.carousel-viewport {
+  grid-area: viewport;
+  position: relative;
+  overflow: hidden;
+  overscroll-behavior-x: contain; /* a sideways swipe here shouldn't trigger the browser's back/forward gesture */
+  /* The bottom padding is generous so the selected/hovered book's soft
+     shadow isn't cropped by overflow: hidden. The negative margin cancels
+     the extra height on desktop, so the layout doesn't shift. */
+  padding: 40px 0 100px;
+  margin-bottom: -44px;
+}
+
+.sketchbook-track {
+  position: relative; /* so each book's offsetLeft is measured from the track */
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: var(--track-gap);
+  transition: transform var(--carousel-duration) var(--carousel-ease);
+  will-change: transform;
+}
+
+/* script.js adds this briefly when it has to jump the track into
+   place with no animation (first load, window resize). */
+.sketchbook-track.is-instant {
+  transition: none;
+}
+
+/* ONE wrapper per book. It only holds the small, permanent
+   up/down + tilt variation. Each effect has its OWN layer so they
+   never fight over `transform`: the track slides, this wrapper staggers,
+   .sketchbook-visual handles "selected", and .sketchbook-hover (inside
+   it) handles hover. flex: 0 0 means books never shrink to fit. */
+.sketchbook-item {
+  flex: 0 0 var(--book-width);
+  width: var(--book-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 1;
+}
+
+/* A subtle, repeating stagger. Keep these small — the movement must
+   stay horizontal. */
+.sketchbook-item:nth-child(3n + 1) {
+  transform: translateY(-14px) rotate(-1deg);
+}
+
+.sketchbook-item:nth-child(3n + 2) {
+  transform: translateY(18px) rotate(1deg);
+}
+
+.sketchbook-item:nth-child(3n + 3) {
+  transform: translateY(-3px) rotate(-0.5deg);
+}
+
+/* The clickable book. A soft shadow that follows the PNG's real
+   outline (drop-shadow) rather than a rectangle round its empty
+   margins. Unselected books are only a touch dimmer (brightness) —
+   never transparent. */
+.sketchbook-visual {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3; /* every cover gets the same equal box */
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: brightness(0.97) drop-shadow(0 10px 12px rgba(70, 50, 30, 0.2));
+  transition:
+    transform var(--selected-duration) var(--carousel-ease),
+    filter var(--selected-duration) ease;
+}
+
+/* SELECTED book: larger, a touch higher, a slightly stronger (still
+   soft) shadow. This layer ONLY ever handles the selected state. */
+.sketchbook-item.is-selected .sketchbook-visual {
+  transform: translateY(var(--selected-lift)) scale(var(--selected-scale));
+  filter: brightness(1) drop-shadow(0 26px 26px rgba(70, 50, 30, 0.36));
+}
+
+/* HOVER layer, inside the layer above. Because it's a separate, nested
+   element, its transform MULTIPLIES with the selected state instead of
+   replacing it: a hovered selected book is 1.12 x 1.05, a hovered
+   unselected one just 1.05 — and neither loses its own styling. Its
+   shadow is a second, extra drop-shadow that fades in on hover. Also
+   applies on keyboard focus. */
+.sketchbook-hover {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform: translateY(0) scale(1);
+  filter: drop-shadow(0 0 0 rgba(70, 50, 30, 0));
+  transition:
+    transform var(--hover-duration) var(--carousel-ease),
+    filter var(--hover-duration) ease;
+}
+
+@media (hover: hover) {
+  .sketchbook-visual:hover .sketchbook-hover {
+    transform: translateY(var(--hover-lift)) scale(var(--hover-scale));
+    filter: drop-shadow(0 14px 14px rgba(70, 50, 30, 0.2));
+  }
+}
+
+.sketchbook-visual:focus-visible .sketchbook-hover {
+  transform: translateY(var(--hover-lift)) scale(var(--hover-scale));
+  filter: drop-shadow(0 14px 14px rgba(70, 50, 30, 0.2));
+}
+
+.sketchbook-item img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* never stretched or cropped */
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* The name under EACH book (selected or not), so you can see what's
+   next/previous before choosing it. It's inside .sketchbook-item, so it
+   moves with its book. The negative top margin tucks it up into the
+   PNG's empty bottom margin, so it sits just under the visible cover
+   (scaled to the book's width, so the spacing is the same at every
+   size). The selected book's name is simply a little darker — no
+   opacity involved. */
+.sketchbook-title {
+  position: relative; /* paints above the book's soft shadow */
+  margin: calc(var(--book-width) * -0.1) 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  line-height: 1.6;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--color-muted);
+  opacity: 1;
+  cursor: pointer;
+  transition:
+    color 0.3s ease,
+    transform var(--selected-duration) var(--carousel-ease);
+}
+
+/* When the selected cover grows and lifts, its bottom edge moves down by
+   (scale - 1) x 0.75 x the book's width, less the lift. The title moves
+   with it by exactly that amount, so it keeps the same distance below its
+   cover as every other book's title does (instead of the bigger cover
+   crowding it). */
+.sketchbook-item.is-selected .sketchbook-title {
+  color: var(--color-text);
+  transform: translateY(calc((var(--selected-scale) - 1) * var(--book-width) * 0.75 + var(--selected-lift)));
+}
+
+.carousel__arrow {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 0.2em;
+  background: none;
+  border: 1.5px solid var(--color-muted);
+  border-radius: 50%;
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--color-muted);
+  opacity: 0.75;
+  cursor: pointer;
+  transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.carousel__arrow--prev {
+  grid-area: prev;
+}
+
+.carousel__arrow--next {
+  grid-area: next;
+}
+
+.carousel__arrow:hover:not(:disabled) {
+  opacity: 1;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Greyed out at either end of the collection (and while sliding). */
+.carousel__arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Every book now shows its own name, so this single caption would just
+   repeat the selected one. It stays in the page (script.js still updates
+   it) purely so screen readers announce which book is selected. */
+.carousel__label {
+  grid-area: label;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.carousel__label.is-changing {
+  opacity: 0;
+}
+
+/* -------------------------------------------------------------
+   CLOSED-BOOK CUSTOMISING (script.js, section 6b)
+   -------------------------------------------------------------
+   Two layers live inside .sketchbook-hover, on top of the book's PNG, so
+   they scale, lift and tilt with it:
+     .sketchbook-tint   the fabric cover only, coloured by an SVG filter
+     .sketchbook-doodle a transparent <canvas>; only takes pointer input
+                        while that book is in drawing mode
+   Beside each book, two small round buttons (.book-tools) appear on
+   hover / keyboard focus; in drawing mode they swap for the pencil
+   toolbar (.book-draw-bar). */
+.sketchbook-item {
+  position: relative;
+}
+
+.sketchbook-item:hover,
+.sketchbook-item.is-customising {
+  z-index: 3; /* so its buttons sit above the next book */
+}
+
+.sketchbook-tint,
+.sketchbook-doodle {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sketchbook-tint[hidden] {
+  display: none;
+}
+
+.sketchbook-doodle {
+  touch-action: none;
+}
+
+.sketchbook-item.is-drawing .sketchbook-doodle {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.sketchbook-item.is-drawing .sketchbook-visual {
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* While a book is being drawn on, the other books don't react to clicks. */
+.carousel.is-drawing-mode .sketchbook-item:not(.is-drawing) .sketchbook-visual,
+.carousel.is-drawing-mode .sketchbook-item:not(.is-drawing) .sketchbook-title {
+  cursor: default;
+}
+
+/* Zero-size markers at the picture's corners, used to find the pointer. */
+.sketchbook-corner {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.sketchbook-corner--tl { left: 0; top: 0; }
+.sketchbook-corner--tr { left: 100%; top: 0; }
+.sketchbook-corner--bl { left: 0; top: 100%; }
+
+/* The buttons sit just right of the visible cover (the PNG has a clear
+   margin, so the cover's edge is ~90% across the box). Padding on the
+   left bridges the gap, so moving the mouse from the book onto the
+   buttons never "loses" the hover. */
+.book-tools,
+.book-draw-bar {
+  --tool-size: 36px;
+  position: absolute;
+  z-index: 4;
+  left: calc(var(--book-width) * 0.906);
+  top: calc(var(--book-width) * 0.12);
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-6px);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease,
+    left var(--selected-duration) var(--carousel-ease),
+    visibility 0s linear 200ms;
+}
+
+/* The selected book is bigger (scaled about its centre), so its edge is further out. */
+.sketchbook-item.is-selected .book-tools,
+.sketchbook-item.is-selected .book-draw-bar {
+  left: calc(var(--book-width) * (0.5 + 0.406 * var(--selected-scale)));
+}
+
+/* The drawing toolbar: the six tools in a 2 x 3 grid, with the eight
+   colour dots in a compact 4 x 2 grid underneath. */
+.book-draw-bar {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.book-draw-tools {
+  display: grid;
+  grid-template-columns: repeat(2, var(--tool-size));
+  gap: 8px;
+}
+
+.book-draw-colours {
+  display: grid;
+  grid-template-columns: repeat(4, 20px);
+  gap: 9px 8px;
+  padding: 2px 0 0 2px;
+}
+
+.book-colour {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(36, 31, 26, 0.35); /* so the paler colours show up */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+/* White gets a clearer grey edge so it doesn't vanish on the light page. */
+.book-colour[data-colour="white"] {
+  border-color: #9c978f;
+}
+
+@media (hover: hover) {
+  .book-colour:hover {
+    transform: scale(1.12);
+  }
+}
+
+.book-colour:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* The colour in use: a double ring, like the selected colour elsewhere. */
+.book-colour[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--page-bg), 0 0 0 3.5px var(--color-text);
+}
+
+/* Shown: on hover, on keyboard focus, while the palette is open, and
+   (on touch screens, which can't hover) for the selected book. */
+.sketchbook-item:hover .book-tools,
+.sketchbook-item:has(:focus-visible) .book-tools,
+.sketchbook-item.is-customising .book-tools,
+.sketchbook-item.is-drawing .book-draw-bar {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease,
+    left var(--selected-duration) var(--carousel-ease),
+    visibility 0s;
+}
+
+@media (hover: none) {
+  .sketchbook-item.is-selected .book-tools {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+}
+
+/* While one book is being drawn on, the other books show no buttons. */
+.carousel.is-drawing-mode .sketchbook-item:not(.is-drawing) .book-tools {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* In drawing mode the toolbar replaces the two buttons. */
+.sketchbook-item.is-drawing .book-tools,
+.sketchbook-item.is-drawing:hover .book-tools {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Small round hand-drawn-looking buttons: ink outline, slightly uneven
+   circle, a little offset "pencil shadow". */
+.book-tool {
+  width: var(--tool-size);
+  height: var(--tool-size);
+  display: grid;
+  place-items: center;
+  flex: none;
+  padding: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1.5px solid var(--color-text);
+  border-radius: 52% 48% 50% 50% / 49% 52% 48% 51%;
+  box-shadow: 1.5px 2px 0 rgba(36, 31, 26, 0.28);
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.book-tool svg {
+  display: block;
+}
+
+@media (hover: hover) {
+  .book-tool:hover:not(:disabled) {
+    transform: rotate(-5deg) scale(1.08);
+  }
+}
+
+.book-tool:focus-visible,
+.book-swatch:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.book-tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+}
+
+.book-tool[aria-expanded="true"],
+.book-tool[aria-pressed="true"] {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+/* The pen and crayon keep their own look when selected: a double ring
+   rather than the dark "pressed" fill the eraser uses. */
+.book-tool--pen[aria-pressed="true"],
+.book-tool--crayon[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 0 0 2px var(--page-bg), 0 0 0 3.5px var(--color-text);
+}
+
+.book-tool--done {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* The colour dots, in a small panel under the palette button. */
+.book-swatches {
+  display: grid;
+  grid-template-columns: repeat(2, 26px);
+  gap: 7px;
+  padding: 9px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-text);
+  border-radius: 16px 14px 17px 14px / 14px 17px 14px 16px;
+  box-shadow: 1.5px 2px 0 rgba(36, 31, 26, 0.28);
+  animation: book-swatches-in 200ms ease both;
+}
+
+.book-swatches[hidden] {
+  display: none;
+}
+
+@keyframes book-swatches-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.book-swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid rgba(36, 31, 26, 0.35); /* so even the palest dot shows up */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+@media (hover: hover) {
+  .book-swatch:hover {
+    transform: scale(1.1);
+  }
+}
+
+.book-swatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 3.5px var(--color-text);
+}
+
+/* Spoken (not shown) feedback when drawing mode starts and stops. */
+.book-tools__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- Book screens (placeholder open-book views) ---- */
+.screen--book {
+  position: relative;
+  /* Hug the top (just clearing the "Back to shelf" button) instead of
+     centering, so the book itself gets as much room as possible. */
+  justify-content: flex-start;
+  padding-top: 3.75rem;
+  padding-bottom: 0.75rem;
+  gap: 0;
+}
+
+.book__back {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: none;
+  border: none;
+  font: inherit;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.book__back:hover {
+  color: var(--color-accent);
+}
+
+.book__frame {
+  position: relative; /* anchors #works-overlay below */
+  width: min(86vw, 1650px);
+  /* Fill whatever vertical space is left under the header + back
+     button, capped so it never grows past this even on a tall screen. */
+  height: 100%;
+  min-height: 0; /* lets a flex child shrink to fit instead of overflowing */
+  max-height: calc(100vh - 150px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* -------------------------------------------------------------
+   WORKS BOOK CONTENT
+   -------------------------------------------------------------
+   #works-overlay is positioned and sized by script.js (syncWorksOverlay)
+   to sit exactly on top of the rendered <img>, whatever size that ends
+   up being — so the percentages below are percentages of the actual
+   book artwork, not the (sometimes larger, letterboxed) .book__frame
+   box around it. That's what keeps the two pages of content lined up
+   with the real paper at any screen size, without ever touching the
+   fold, the binding, the rounded corners or the outer edge.
+   ------------------------------------------------------------- */
+.book__overlay {
+  position: absolute;
+  pointer-events: none; /* re-enabled on the page content below */
+  perspective: 1800px; /* gives #works-turn-flap its 3D depth */
+  transform-style: preserve-3d;
+}
+
+.book__page {
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  display: flex;
+  flex-direction: column;
+  /* A safety net for a very short window or a longer description than
+     expected: the page scrolls internally rather than silently
+     clipping text or spilling past the paper. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.book__page--left {
+  left: 9%;
+  right: 54%; /* stops well clear of the centre binding */
+  align-items: flex-start;
+  text-align: left;
+}
+
+.book__page--right {
+  left: 53%; /* still clear of the binding, just less margin than the
+                left page needs, to give the media more room */
+  right: 8%; /* at least 8% clear of the outer paper edge */
+  align-items: center;
+  text-align: center;
+}
+
+/* ---- Shared type styles. Everything on this page reuses the same
+   hand-drawn heading font — no second typeface — with hierarchy made
+   from size and spacing instead. ---- */
+.work__label,
+.work__number,
+.work__title,
+.work__meta,
+.work__description,
+.work__caption,
+.work__nav {
+  font-family: var(--font-heading);
+  font-weight: normal;
+}
+
+.work__label {
+  font-size: clamp(0.875rem, 1vw, 1.0625rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.work__label--right {
+  margin-bottom: 0.5em;
+}
+
+.work__number {
+  font-size: clamp(0.875rem, 1vw, 1.0625rem);
+  color: var(--color-muted);
+  margin-top: 0.2em;
+}
+
+.work__title {
+  font-size: clamp(1.875rem, 2.1vw, 2.125rem); /* ~30-34px: a step down so it doesn't dominate the page */
+  line-height: 1.15;
+  color: var(--color-text);
+  margin-top: 0.2em;
+}
+
+.work__meta {
+  font-size: clamp(0.875rem, 1vw, 1.0625rem);
+  color: var(--color-muted);
+  margin-top: 0.4em;
+}
+
+.work__description {
+  font-size: clamp(1.0625rem, 1.15vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--color-text);
+  margin-top: 0.75em;
+  max-width: 44ch;
+}
+
+/* A fixed 16:9 placeholder matching the real video's shape. Sized as a
+   percentage of the right page (not a fixed pixel width) so it scales
+   with the book; the auto block margins centre it vertically in
+   whatever room is left under the "Animation" heading, and
+   margin-inline: auto centres it horizontally within the page. */
+.work__media {
+  width: 82%;
+  max-width: 100%; /* never wider than the page's own safe area */
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  max-height: 100%; /* safety net: never taller than the page has room for */
+  margin-inline: auto;
+  margin-block: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.work__media-el {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.work__caption {
+  font-size: clamp(0.8rem, 0.95vw, 0.95rem);
+  color: var(--color-muted);
+  margin-top: 0.5em;
+  font-style: italic;
+}
+
+/* Flip between project spreads. margin-top: auto pushes each button
+   down to the bottom of its own page (same trick the old thumbnail
+   row used); .work__nav--next overrides the right page's centering so
+   it sits in the outer corner instead, mirroring "Previous" opposite
+   it. Reaching either end of WORKS_PROJECTS disables (not hides) the
+   relevant button, so the layout doesn't jump. */
+.work__nav {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 0.75em;
+  background: none;
+  border: none;
+  font-size: clamp(0.875rem, 1vw, 1.0625rem);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.work__nav--next {
+  align-self: flex-end;
+}
+
+.work__nav:hover:not(:disabled) {
+  color: var(--color-accent);
+}
+
+.work__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* -------------------------------------------------------------
+   ANIMATION BOOK: CONTENTS PAGE
+   -------------------------------------------------------------
+   The list inside .work-contents is built by script.js from the
+   project data. While it's showing, the screen has .is-contents and the
+   project text/media are hidden (the arrow buttons stay). Each entry is
+   one full-width button, so the whole row is clickable, with a light
+   dotted guide line underneath. */
+.work-contents {
+  width: 100%;
+  padding-top: 4%;
+}
+
+.work-contents[hidden] {
+  display: none;
+}
+
+.screen.is-contents .work__number,
+.screen.is-contents .work__title,
+.screen.is-contents .work__meta,
+.screen.is-contents .work__description,
+.screen.is-contents .work__label--right,
+.screen.is-contents .work__media,
+.screen.is-contents .work__caption {
+  display: none;
+}
+
+.work-contents__heading {
+  font-family: var(--font-heading);
+  font-weight: normal;
+  /* bigger than the project titles (~30-34px) */
+  font-size: clamp(2.25rem, 3.2vw, 3.25rem);
+  line-height: 1.1;
+  color: var(--color-text);
+  margin-bottom: 0.55em;
+}
+
+.work-contents__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.work-contents__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75em;
+  width: calc(100% - 12px); /* room for the nudge to the right on hover */
+  padding: 0.65em 0.2em 0.55em;
+  background: none;
+  border: none;
+  border-bottom: 2px dotted rgba(36, 31, 26, 0.3);
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 1.75vw, 1.75rem);
+  line-height: 1.25;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease;
+}
+
+.work-contents__num {
+  flex: none;
+  min-width: 1.9em; /* so every title starts at the same place */
+  font-size: 0.6em;
+  color: var(--color-muted);
+}
+
+/* A hand-drawn wavy underline that draws itself in on hover/focus. */
+.work-contents__title {
+  padding-bottom: 0.15em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C 10 1, 18 7, 30 4 S 50 1, 62 5 S 86 7, 98 3 S 112 4, 119 4' fill='none' stroke='%23d9480f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 7px;
+  transition: background-size 320ms ease;
+}
+
+.work-contents__item:hover,
+.work-contents__item:focus-visible {
+  transform: translateX(8px);
+  color: var(--color-accent);
+  border-bottom-color: rgba(217, 72, 15, 0.45);
+}
+
+.work-contents__item:hover .work-contents__title,
+.work-contents__item:focus-visible .work-contents__title {
+  background-size: 100% 7px;
+}
+
+.work-contents__item:focus-visible {
+  outline-offset: -3px; /* inside the row, so the page edge can't clip it */
+}
+
+/* -------------------------------------------------------------
+   PAGE-TURN ANIMATION
+   -------------------------------------------------------------
+   #works-turn-flap is a single reusable element (see playPageTurn in
+   script.js). It is a SELF-CONTAINED box — its own position/top/
+   bottom/left/right/width are set directly by the --next/--prev
+   classes below, not borrowed from .book__page — because .book__page
+   only supplies left/right via a shared class that assumes a sibling
+   base class (.book__page) is also present for position/top/bottom/
+   display; the flap was never getting that base class, so it had no
+   position, no height, and was invisible (zero-size) no matter what
+   the animation did. Fixed by giving it everything it needs here.
+
+   Positioned from the actual centre binding (50%) — a real page's
+   paper extends all the way to the spine, even though the right page's
+   PRINTED content starts a little further out (53%) for readability.
+   .book__overlay carries the perspective/preserve-3d (a transformed
+   element needs an ancestor with `perspective` for the 3D effect to
+   read, not the perspective itself).
+
+   Colours here are deliberately a bit more visible than the final
+   design (darker cream, stronger shadow) so the motion is obvious;
+   turn them down once you've confirmed it looks right. */
+.book__turn-flap {
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  display: none;
+  background: linear-gradient(100deg, #e6dcc4 0%, #ded2b3 55%, #d8cba8 100%);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.book__turn-flap.is-turning {
+  display: block;
+}
+
+.book__turn-flap--next {
+  left: 50%;
+  right: 8%; /* matches .book__page--right's outer-edge margin */
+  transform-origin: left center; /* hinges at the spine */
+  animation: book-turn-next 850ms ease-in-out forwards;
+}
+
+.book__turn-flap--prev {
+  left: 9%; /* matches .book__page--left's outer-edge margin */
+  right: 50%;
+  transform-origin: right center; /* hinges at the spine */
+  animation: book-turn-prev 850ms ease-in-out forwards;
+}
+
+/* The 90% step fades opacity to 0 just before the end. Without it, the
+   flap would briefly be fully visible again right at -180deg — at
+   exactly a half-turn you're looking at its FRONT face again (mirrored),
+   which backface-visibility does nothing to hide, that being only for
+   the 90deg-270deg range — and since cleanup depends on the
+   `animationend` event firing promptly, which isn't guaranteed in every
+   environment, this makes that moment invisible regardless of timing. */
+@keyframes book-turn-next {
+  0% {
+    transform: rotateY(0deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 1;
+  }
+  50% {
+    transform: rotateY(-90deg);
+    box-shadow: 18px 0 36px rgba(0, 0, 0, 0.35);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(-180deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes book-turn-prev {
+  0% {
+    transform: rotateY(0deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 1;
+  }
+  50% {
+    transform: rotateY(90deg);
+    box-shadow: -18px 0 36px rgba(0, 0, 0, 0.35);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(180deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------------
+   DOODLES BOOK (the dusty rose sketchbook): cat pictures only
+   -------------------------------------------------------------
+   .book__overlay is sized by script.js to sit exactly on the book image
+   (same as the Works book), so every % below is a % of the real artwork.
+   Each .doodle-page is a positioned box covering one paper page, using
+   the same safe areas as .book__page--left/--right (clear of the
+   binding and the paper's edge); each .doodle is placed INSIDE its page
+   with its own top / left / width (set in its style attribute, as a %
+   of that page) plus --rot, its tilt. Because those are all percentages
+   of boxes that scale with the book, the arrangement just scales with
+   the window. The images have no background, border, shadow or card:
+   the transparent PNGs sit straight on the paper. */
+.doodle-spread {
+  position: absolute;
+  inset: 0; /* no `display` here on purpose, so the `hidden` attribute still hides a spread */
+}
+
+.doodle-page {
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  pointer-events: none; /* empty paper never blocks anything; only the drawings (and arrows) react */
+}
+
+.doodle-page--left {
+  left: 9%;
+  right: 54%;
+}
+
+.doodle-page--right {
+  left: 53%;
+  right: 8%;
+}
+
+.doodle {
+  position: absolute;
+  display: block;
+  height: auto;
+  object-fit: contain;
+  pointer-events: auto;
+  transform: translateY(0) scale(1) rotate(var(--rot, 0deg));
+  transition: transform 220ms ease;
+}
+
+/* A subtle hover: a touch bigger, a few pixels up, and the tilt eases
+   to half its original angle. */
+@media (hover: hover) {
+  .doodle:hover {
+    transform: translateY(-5px) scale(1.05) rotate(calc(var(--rot, 0deg) * 0.5));
+  }
+}
+
+/* Page-turn buttons. They are the SAME buttons as the Animation book's
+   (the .work__nav class gives them their look: size, colour, hover and
+   greyed-out styles). This only anchors them to the bottom corners of the
+   pages — where the Animation book's sit — and keeps them above every
+   drawing so a doodle can never block them. */
+.doodle__nav {
+  position: absolute;
+  bottom: 15%;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.doodle__nav--prev {
+  left: 9%;
+}
+
+.doodle__nav--next {
+  right: 8%;
+}
+
+/* -------------------------------------------------------------
+   ABOUT ME BOOK (the sage-green sketchbook): first page
+   -------------------------------------------------------------
+   Same idea as the other books: .book__overlay is sized by script.js
+   (initAboutBook) to sit exactly on the book picture, and each
+   .about-page covers one paper page using the same safe areas as the
+   Animation and Doodles books (clear of the binding and the outer
+   edge), so the layout scales with the book.
+   LEFT: a portrait "printed photo" card in the middle of the page.
+   RIGHT: a heading and a paragraph, with plenty of space around them. */
+.about-page {
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+}
+
+.about-page--left {
+  left: 9%;
+  right: 54%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-page--right {
+  left: 53%;
+  right: 8%;
+  padding-top: 6%;
+  text-align: left;
+}
+
+/* The photo card: a white-ish print border round the picture, a very
+   slight tilt, an uneven hand-drawn-looking outline and a soft shadow, as
+   if a real photograph had been placed on the page. It's sized to the
+   PHOTO's shape: wide as the page allows (with paper margins), and as
+   tall as the photo needs, so the whole picture shows — nothing cropped.
+
+   Two layers: .about-photo-hover never moves — it fixes the photo's size and
+   place on the page and is what the pointer hovers over, so the photo
+   lifting can't make the hover flicker at its edges — and .about-photo inside
+   it does the tilting and lifting. */
+.about-photo-hover {
+  width: 92%;
+  pointer-events: auto; /* (the book's overlay ignores the pointer by default; the photo needs it to notice hovering) */
+}
+
+.about-photo {
+  --photo-tilt: -1.5deg;
+  width: 100%;
+  margin: 0;
+  padding: 4.5%;
+  box-sizing: border-box;
+  background: #fbf9f3;
+  border: 1.5px solid var(--color-text);
+  border-radius: 3px 5px 4px 6px / 5px 3px 6px 4px;
+  transform: translateY(0) scale(1) rotate(var(--photo-tilt));
+  box-shadow:
+    1px 2px 0 rgba(36, 31, 26, 0.18),
+    4px 9px 16px rgba(70, 50, 30, 0.22);
+  transition:
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Holds the picture and clips it, so it can zoom a touch without leaving
+   the frame. */
+.about-photo__frame {
+  display: block;
+  overflow: hidden;
+  line-height: 0;
+  box-shadow: 0 0 0 1px rgba(36, 31, 26, 0.3); /* a thin edge that adds no size, so the frame stays exactly the photo's shape */
+  border-radius: 2px 3px 2px 3px / 3px 2px 3px 2px;
+}
+
+/* The picture itself. aspect-ratio matches the photo (1400 x 933), so the
+   frame is exactly its shape; object-fit: cover is the safety net that
+   fills the frame if a different photo is swapped in. */
+.about-photo__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1400 / 933;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hover (and keyboard focus inside it): the print lifts gently off the page —
+   a touch bigger, a few pixels up, the tilt eases to level, the shadow
+   deeper and softer, the picture itself zooms very slightly. It stays well
+   inside the left page (the card is 92% of its width and sits in the
+   middle). The photo isn't a link or button, so the cursor stays normal. */
+@media (hover: hover) {
+  .about-photo-hover:hover .about-photo {
+    transform: translateY(-7px) scale(1.03) rotate(0deg);
+    box-shadow:
+      1px 3px 0 rgba(36, 31, 26, 0.12),
+      8px 18px 30px rgba(70, 50, 30, 0.26);
+  }
+
+  .about-photo-hover:hover .about-photo__image {
+    transform: scale(1.03);
+  }
+}
+
+.about-photo-hover:focus-within .about-photo,
+.about-photo:focus-visible {
+  transform: translateY(-7px) scale(1.03) rotate(0deg);
+  box-shadow:
+    1px 3px 0 rgba(36, 31, 26, 0.12),
+    8px 18px 30px rgba(70, 50, 30, 0.26);
+}
+
+.about-photo-hover:focus-within .about-photo__image,
+.about-photo:focus-visible .about-photo__image {
+  transform: scale(1.03);
+}
+
+/* Reduced motion: no moving, tilting or zooming — only the shadow changes. */
+@media (prefers-reduced-motion: reduce) {
+  .about-photo-hover:hover .about-photo,
+  .about-photo-hover:focus-within .about-photo,
+  .about-photo:focus-visible {
+    transform: translateY(0) scale(1) rotate(var(--photo-tilt));
+  }
+
+  .about-photo-hover:hover .about-photo__image,
+  .about-photo-hover:focus-within .about-photo__image,
+  .about-photo:focus-visible .about-photo__image {
+    transform: scale(1);
+  }
+}
+
+/* The stickers on the left page. .about-sticker is the still outer layer: it
+   fixes the sticker's place and size (as % of the left page, so the
+   arrangement scales with the book) and receives the hover; the picture
+   inside is what tilts and lifts, so the hover never fights the positioning
+   and can't flicker at the edges. They sit in the empty paper above and below
+   the photo — never over it, never near the binding or the page edges. Their
+   own white outline and colours come from the PNGs; the soft shadow follows
+   each sticker's shape. Decorative only: normal cursor, hidden from screen
+   readers. */
+.about-sticker {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  z-index: 1;
+  pointer-events: auto; /* (the book's overlay ignores the pointer by default) */
+}
+
+.about-sticker img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: translateY(0) scale(1) rotate(var(--rot));
+  filter: drop-shadow(0 1px 1.5px rgba(70, 50, 30, 0.28)) drop-shadow(0 3px 5px rgba(70, 50, 30, 0.12));
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hover (or keyboard focus): a gentle nudge — a touch bigger (1.06), 3px
+   higher, tilted a couple of degrees closer to level, a slightly stronger
+   shadow — and raised above its neighbours. */
+@media (hover: hover) {
+  .about-sticker:hover {
+    z-index: 5;
+  }
+
+  .about-sticker:hover img {
+    transform: translateY(-3px) scale(1.06) rotate(calc(var(--rot) * 0.8));
+    filter: drop-shadow(0 2px 3px rgba(70, 50, 30, 0.3)) drop-shadow(0 5px 8px rgba(70, 50, 30, 0.16));
+  }
+}
+
+.about-sticker:focus-within {
+  z-index: 5;
+}
+
+.about-sticker:focus-within img {
+  transform: translateY(-3px) scale(1.06) rotate(calc(var(--rot) * 0.8));
+  filter: drop-shadow(0 2px 3px rgba(70, 50, 30, 0.3)) drop-shadow(0 5px 8px rgba(70, 50, 30, 0.16));
+}
+
+/* Reduced motion: no lifting or tilting — just a very small grow and the stronger shadow. */
+@media (prefers-reduced-motion: reduce) {
+  .about-sticker:hover img,
+  .about-sticker:focus-within img {
+    transform: scale(1.03) rotate(var(--rot));
+  }
+}
+
+.about-heading {
+  font-family: var(--font-heading);
+  font-weight: normal;
+  /* (the same size as ever on a normal screen; only on a tiny book, e.g. a
+     phone, does it shrink along with the book so the page isn't overfull) */
+  font-size: min(clamp(1.75rem, 2.6vw, 2.75rem), calc(var(--book-w, 880px) * 0.045));
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+/* The three paragraphs. The text size is a fixed share of the BOOK's width
+   (script.js hands the book's width to --book-w), so the words shrink and
+   grow with the sketchbook and always fit the page — a fixed pixel size would
+   overflow the page on a small window. About 2% of the book's width is
+   roughly 18px at a typical laptop size. */
+.about-text {
+  max-width: 95%; /* keeps a little air on the right-hand side, so the margins look balanced */
+  margin-top: 0.8em;
+  font-family: var(--font-heading);
+  font-size: calc(var(--book-w, 880px) * 0.0205);
+  line-height: 1.5;
+  color: var(--color-text);
+  text-wrap: pretty;
+}
+
+.about-text:first-of-type {
+  margin-top: 0.9em; /* a little more room under the heading */
+}
+
+/* -------------------------------------------------------------
+   BACKGROUND COLOUR SWITCHER (bottom-left corner)
+   -------------------------------------------------------------
+   A small round palette button, fixed to the corner so it stays put as
+   you move between sketchbooks. Clicking it fans six colour dots up
+   above it; clicking a dot fades the page background to that colour
+   (script.js, section 7, sets data-bg on <html> and remembers it). It
+   only ever changes --page-bg: books, doodles, videos, text colour,
+   header border and shadows are untouched. No text, so no font needed. */
+.bg-switcher {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 200; /* above the page content and header */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The box is tall (the dots open upwards from the button), so on its own it
+   would sit invisibly over whatever is above the button — on a short window
+   that was the carousel's left arrow. Only the buttons take clicks. */
+.bg-switcher {
+  pointer-events: none;
+}
+
+.bg-switcher__toggle,
+.bg-swatch {
+  pointer-events: auto;
+}
+
+.bg-switcher__swatches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* closed: invisible, not focusable, tucked slightly down toward the button */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    visibility 0s linear 260ms;
+}
+
+.bg-switcher.is-open .bg-switcher__swatches {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    visibility 0s;
+}
+
+.bg-switcher__toggle,
+.bg-swatch {
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 200ms ease;
+}
+
+.bg-switcher__toggle {
+  transition: transform 160ms ease; /* the same speed as the pencil and theme buttons */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px solid var(--color-text);
+  color: var(--color-text);
+  box-shadow: 1.5px 2px 0 rgba(36, 31, 26, 0.28); /* the same little offset shadow as the pencil and theme buttons */
+}
+
+.bg-switcher__toggle svg {
+  display: block;
+}
+
+.bg-swatch {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(36, 31, 26, 0.3); /* so even the cream dot shows up on a cream page */
+}
+
+.bg-swatch[data-bg="cream"]    { background: var(--bg-cream); }
+.bg-swatch[data-bg="golden"]   { background: var(--bg-golden); }
+.bg-swatch[data-bg="blush"]    { background: var(--bg-blush); }
+.bg-swatch[data-bg="coral"]    { background: var(--bg-coral); }
+.bg-swatch[data-bg="bluegrey"] { background: var(--bg-bluegrey); }
+.bg-swatch[data-bg="teal"]     { background: var(--bg-teal); }
+
+@media (hover: hover) {
+  .bg-swatch:hover {
+    transform: scale(1.08);
+  }
+
+  /* The palette button tilts a little as it grows, the same hover as the
+     pencil and theme buttons beside it (.book-tool:hover). */
+  .bg-switcher__toggle:hover {
+    transform: rotate(-5deg) scale(1.08);
+  }
+}
+
+/* The colour currently in use: a thin dark ring, set off from the dot
+   by a small gap so it reads clearly on every colour. */
+.bg-swatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--page-bg), 0 0 0 3.5px var(--color-text);
+}
+
+/* Readability on the darker muted teal. The text colour itself isn't
+   changed anywhere else; but the soft brown "muted" text and the orange
+   hover colour are too faint on teal (about 2.5:1 and 1.3:1), so ON
+   TEAL ONLY the text that sits straight on the page background uses the
+   main dark text colour (about 4.8:1), and the links/back button light
+   up cream on hover instead of orange. The carousel arrows aren't
+   touched. */
+html[data-bg="teal"] .landing__instruction,
+html[data-bg="teal"] .sketchbook-title,
+html[data-bg="teal"] .book__back {
+  color: var(--color-text);
+}
+
+html[data-bg="teal"] .nav__links a:hover,
+html[data-bg="teal"] .nav__links button:hover,
+html[data-bg="teal"] .book__back:hover {
+  color: #fff6e6;
+}
+
+/* ...but the dropdown's own box is cream paper, so inside it keep the
+   normal dark/orange text rather than the light hover colour above. */
+html[data-bg="teal"] .nav__links .nav__menu .nav__menu-item:hover {
+  color: var(--color-accent);
+}
+
+/* =============================================================
+   RESPONSIVE / MOBILE STYLES
+   =============================================================
+   Everything above is the "desktop" look. The block below only
+   applies on screens NARROWER than 700px (phones and small
+   tablets). This is how the site adapts — it's the "Responsive"
+   part of the brief.
+
+   Try it: make your browser window very narrow and watch the
+   menu turn into a hamburger button.
+   ============================================================= */
+@media (max-width: 700px) {
+  /* Drawing colours: a touch tighter so the grid stays inside the
+     narrow carousel window beside the book. */
+  .book-draw-colours {
+    grid-template-columns: repeat(4, 19px);
+    gap: 9px 5px;
+  }
+
+  .book-colour {
+    width: 19px;
+    height: 19px;
+  }
+
+
+  /* Show the hamburger button... */
+  .nav__toggle {
+    display: flex;
+  }
+
+  /* ...and hide the links until the button is tapped.
+     script.js adds the class "nav__links--open" to show them. */
+  .nav__links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--page-bg);
+    transition: background-color 420ms ease;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .nav__links--open {
+    display: flex;
+  }
+
+  .nav__links a,
+  .nav__links button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1rem var(--header-pad, var(--space)); /* lines up with the name */
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* "Work" dropdown inside the phone menu: it opens downwards as an
+     indented list instead of floating. */
+  .nav__dropdown {
+    display: block;
+  }
+
+  .nav__links .nav__dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .nav__menu {
+    position: static;
+    display: none;
+    min-width: 0;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .nav__dropdown.is-open .nav__menu {
+    display: block;
+  }
+
+  .nav__menu-list {
+    gap: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .nav__links .nav__menu-item {
+    padding: 1rem var(--header-pad, var(--space)) 1rem calc(var(--header-pad, var(--space)) + 1.25rem);
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+  }
+
+  /* Stack the about photo above the text instead of beside it. */
+  .about {
+    grid-template-columns: 1fr;
+  }
+
+  .about__photo {
+    width: 160px;
+  }
+
+  /* Phones: let the page scroll if it has to, and shrink the books a
+     little so the whole fan (and its arrows) fits a narrow screen. */
+  .app {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .screen {
+    min-height: 100vh;
+  }
+
+  /* Phones: smaller books and a tighter gap so the neighbouring books
+     still peek in from the sides, and the arrows drop down to flank
+     the name underneath. */
+  .carousel {
+    --book-width: min(40vw, 220px);
+    --track-gap: 40px;
+    grid-template-areas:
+      "viewport viewport viewport"
+      "prev     label    next";
+  }
+
+  .carousel-viewport {
+    padding-bottom: 56px; /* no overlap: the arrows sit right below on phones */
+    margin-bottom: 0;
+  }
+
+  .carousel__arrow {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.5rem;
+  }
+
+  .book__frame {
+    width: min(90vw, 480px);
+    height: min(40vh, 360px);
+  }
+}
+
+/* =============================================================
+   REDUCED MOTION  (accessibility)
+   =============================================================
+   Some people feel dizzy or unwell from moving/animated interfaces,
+   so they turn on "Reduce Motion" in their computer settings. When
+   they have, we switch off the smooth scrolling and the little
+   hover animations. Good practice on every site.
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  /* The sketchbook carousel: with reduced motion the track just jumps
+     straight to the selected book instead of sliding (the rule above
+     already removes the transitions). script.js reads
+     --carousel-duration, so it stops waiting too. */
+  .carousel {
+    --carousel-duration: 0ms;
+  }
+}
