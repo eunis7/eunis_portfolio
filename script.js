@@ -186,7 +186,7 @@ const WORKS_PROJECTS = [
     year: "2026", // REPLACE: year
     software: "Procreate Dreams", // REPLACE: software / materials
     description:
-      "This short hand-drawn animation was created for my DSDN 132 project and adapts the myth of Icarus into a modern workplace. It follows an employee whose early success and prise make him increasingly overconfident. He ignores the warnings of a senior worker which eventually leads to his downfall. The sun and wings act as visual metaphors for ambition, pride and the consequences of flying too high.",
+      "This short hand-drawn animation was created for my DSDN 132 project and adapts the myth of Icarus into a modern workplace. It follows an employee whose early success and praise make him increasingly overconfident. He ignores the warnings from a senior worker which eventually leads to his downfall. The sun and wings act as visual metaphors for ambition, pride and the consequences of flying too high.",
     thumb: "assets/project-placeholder-2.svg", // REPLACE: small thumbnail image
     media: {
       type: "video", // REPLACE: "image" or "video"
